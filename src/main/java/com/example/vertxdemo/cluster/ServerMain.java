@@ -17,7 +17,7 @@ public class ServerMain {
         Vertx.clusteredVertx(options, res -> {
             if (res.succeeded()) {
                 System.out.println("-------------------start deploy clustered event bus------");
-                res.result().deployVerticle(new ServerVerticle("vertx.cluster.replyHello"),new DeploymentOptions());
+                res.result().deployVerticle(new ServerVerticle(),new DeploymentOptions());
             } else {
                 System.out.println("Failed: " + res.cause());
             }

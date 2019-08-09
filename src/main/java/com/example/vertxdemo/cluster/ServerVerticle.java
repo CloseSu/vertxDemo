@@ -5,10 +5,12 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 public class ServerVerticle extends AbstractVerticle {
-    private String busAddress;
 
-    public ServerVerticle(String eventBusAddress) {
-        this.busAddress=eventBusAddress;
+    private final String busAdress = "vertx.cluster.replyHello";
+
+    @Override
+    public void start() {
+        vertx.eventBus().<JsonObject>consumer(busAdress).handler(msgHandler());
     }
 
     private Handler<Message<JsonObject>> msgHandler() {
@@ -29,10 +31,5 @@ public class ServerVerticle extends AbstractVerticle {
                 msg.reply(error);
             }
         };
-
-    }
-    @Override
-    public void start() {
-        vertx.eventBus().<JsonObject>consumer(busAddress).handler(msgHandler());
     }
 }

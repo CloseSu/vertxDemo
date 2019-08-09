@@ -17,7 +17,6 @@ public class VertxdemoApplication {
         SpringApplication.run(VertxdemoApplication.class, args);
     }
 
-
     @PostConstruct
     public void depley() {
         Vertx.vertx().deployVerticle(socketEventBusServer);
