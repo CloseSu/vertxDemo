@@ -34,13 +34,23 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
-            <version>3.6.0</version>
+            <version>3.8.0</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-zookeeper</artifactId>
             <version>3.4.0</version>
         </dependency>
+
+        <!-- sql tool-->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-mysql-postgresql-client</artifactId>
+            <version>3.5.0</version>
+        </dependency>
+
+
+
 
     </dependencies>
 
