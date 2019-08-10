@@ -12,7 +12,7 @@ public class ClientVerticle extends AbstractVerticle {
     public void start() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("input","向你打招呼...");
-        vertx.setPeriodic(2 * 1000, callBack-> vertx.eventBus().<JsonObject>send(busAdress, jsonObject,new DeliveryOptions(), resultBody -> {
+        vertx.setPeriodic(2 * 1000, callBack-> vertx.eventBus().<JsonObject>send(busAdress, jsonObject, resultBody -> {
             if (resultBody.failed()) {
                 System.out.println("Fail for the process!");
             }
