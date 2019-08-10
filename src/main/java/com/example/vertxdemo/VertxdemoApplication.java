@@ -1,5 +1,7 @@
 package com.example.vertxdemo;
 
+import com.example.vertxdemo.http.dao.RestVerticle;
+import com.example.vertxdemo.socket.SocketEventBusServer;
 import io.vertx.core.Vertx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +14,8 @@ public class VertxdemoApplication {
 
     @Autowired
     SocketEventBusServer socketEventBusServer;
+    @Autowired
+    RestVerticle restVerticle;
 
     public static void main(String[] args) {
         SpringApplication.run(VertxdemoApplication.class, args);
@@ -20,5 +24,6 @@ public class VertxdemoApplication {
     @PostConstruct
     public void depley() {
         Vertx.vertx().deployVerticle(socketEventBusServer);
+        Vertx.vertx().deployVerticle(restVerticle);
     }
 }

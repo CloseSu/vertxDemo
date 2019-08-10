@@ -1,4 +1,4 @@
-package com.example.vertxdemo;
+package com.example.vertxdemo.socket;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
@@ -20,7 +20,7 @@ import java.util.Date;
 @Component
 public class SocketEventBusServer extends AbstractVerticle {
 
-    // Convenience method so you can run it in your IDE
+    private final Integer PORT = 8081;
 
     @Override
     public void start() throws Exception {
@@ -40,7 +40,7 @@ public class SocketEventBusServer extends AbstractVerticle {
         router.route().handler(StaticHandler.create());
 
         // Start the web server and tell it to use the router to handle requests.
-        vertx.createHttpServer().requestHandler(router::accept).listen(8080);
+        vertx.createHttpServer().requestHandler(router::accept).listen(PORT);
 
         EventBus eb = vertx.eventBus();
 
