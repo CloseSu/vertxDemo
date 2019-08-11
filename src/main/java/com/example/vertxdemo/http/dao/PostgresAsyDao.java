@@ -30,60 +30,36 @@ public class PostgresAsyDao {
 
     public Future<List<JsonObject>> query(AsyncSQLClient client, String sql) {
         return Future.succeededFuture()
-                .compose(r -> {
-                    Future<SQLConnection> f1 = Future.future();
-                    client.getConnection(f1);
-                    return f1;
-                })
-                .compose(con -> {
-                    Future<List<JsonObject>> f2 = Future.future();
-                    con.query(sql, r -> {
-                        if (r.failed()) {
-                            f2.fail(r.cause());
-                        }
-                        f2.complete(r.result().getRows());
-                    });
-                    return f2;
-                });
+                .compose(r -> Future.<SQLConnection>future(f -> client.getConnection(f)))
+                .compose(con -> Future.future(f -> con.query(sql, r -> {
+                    if (r.failed()) {
+                        f.fail(r.cause());
+                    }
+                    f.complete(r.result().getRows());
+                })));
     }
 
 
     public Future<List<JsonObject>> queryWithParams(AsyncSQLClient client, String sql, JsonArray params) {
         return Future.succeededFuture()
-                .compose(r -> {
-                    Future<SQLConnection> f1 = Future.future();
-                    client.getConnection(f1);
-                    return f1;
-                })
-                .compose(con -> {
-                    Future<List<JsonObject>> f2 = Future.future();
-                    con.queryWithParams(sql, params, r -> {
-                        if (r.failed()) {
-                            f2.fail(r.cause());
-                        }
-                        f2.complete(r.result().getRows());
-                    });
-                    return f2;
-                });
+                .compose(r -> Future.<SQLConnection>future(f -> client.getConnection(f)))
+                .compose(con -> Future.future(f -> con.queryWithParams(sql, params, r -> {
+                    if (r.failed()) {
+                        f.fail(r.cause());
+                    }
+                    f.complete(r.result().getRows());
+                })));
     }
 
     protected Future<Boolean> updateWithParams(AsyncSQLClient client, String sql, JsonArray params) {
         return Future.succeededFuture()
-                .compose(r -> {
-                    Future<SQLConnection> f1 = Future.future();
-                    client.getConnection(f1);
-                    return f1;
-                })
-                .compose(con -> {
-                    Future<Boolean> f2 =  Future.future();
-                    con.updateWithParams(sql, params, r -> {
-                        if (r.failed()) {
-                            f2.fail(r.cause());
-                        }
-                        f2.complete(r.result().getUpdated() == 1 ? true : false);
-                    });
-                    return f2;
-                });
+                .compose(r -> Future.<SQLConnection>future(f -> client.getConnection(f)))
+                .compose(con -> Future.future(f ->  con.updateWithParams(sql, params, r -> {
+                    if (r.failed()) {
+                        f.fail(r.cause());
+                    }
+                    f.complete(r.result().getUpdated() == 1 ? true : false);
+                })));
     }
 
 }

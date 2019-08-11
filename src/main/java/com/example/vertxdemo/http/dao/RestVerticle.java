@@ -3,7 +3,6 @@ package com.example.vertxdemo.http.dao;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.asyncsql.AsyncSQLClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
