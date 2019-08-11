@@ -33,11 +33,9 @@ public class RestVerticle extends AbstractVerticle {
     }
 
     private void query(RoutingContext ctx)  {
-        AsyncSQLClient client = postgresAsyDao.getClient(vertx);
         String sql = "SELECT * FROM test.test_table ";
         Future.succeededFuture()
-                .compose(r -> postgresAsyDao.getConnection(client))
-                .compose(con -> postgresAsyDao.query(con, sql))
+                .compose(r -> postgresAsyDao.query(postgresAsyDao.getClient(vertx), sql))
                 .setHandler(res -> {
                     if (res.succeeded()) {
                         ctx.response().end(res.result().toString());
@@ -53,10 +51,8 @@ public class RestVerticle extends AbstractVerticle {
         JsonArray j = new JsonArray();
         j.add(id);
 
-        AsyncSQLClient client = postgresAsyDao.getClient(vertx);
         Future.succeededFuture()
-                .compose(r -> postgresAsyDao.getConnection(client))
-                .compose(con -> postgresAsyDao.queryWithParams(con, sql, j))
+                .compose(r -> postgresAsyDao.queryWithParams(postgresAsyDao.getClient(vertx), sql, j))
                 .setHandler(res -> {
                     if (res.succeeded()) {
                         ctx.response().end(res.result().toString());
@@ -78,11 +74,8 @@ public class RestVerticle extends AbstractVerticle {
         j.add(name);
         j.add(value);
 
-        AsyncSQLClient client = postgresAsyDao.getClient(vertx);
-
         Future.succeededFuture()
-                .compose(r -> postgresAsyDao.getConnection(client))
-                .compose(con -> postgresAsyDao.updateWithParams(con, sql, j))
+                .compose(con -> postgresAsyDao.updateWithParams(postgresAsyDao.getClient(vertx), sql, j))
                 .setHandler(res -> {
                     if (res.succeeded()) {
                         ctx.response().end(res.result().toString());
@@ -104,11 +97,8 @@ public class RestVerticle extends AbstractVerticle {
         j.add(value);
         j.add(id);
 
-        AsyncSQLClient client = postgresAsyDao.getClient(vertx);
-
         Future.succeededFuture()
-                .compose(r -> postgresAsyDao.getConnection(client))
-                .compose(con -> postgresAsyDao.updateWithParams(con, sql, j))
+                .compose(con -> postgresAsyDao.updateWithParams(postgresAsyDao.getClient(vertx), sql, j))
                 .setHandler(res -> {
                     if (res.succeeded()) {
                         ctx.response().end(res.result().toString());
@@ -118,18 +108,13 @@ public class RestVerticle extends AbstractVerticle {
                 });
     }
 
-
-
     private void deleteWithParams(RoutingContext ctx) {
         String id = ctx.request().getParam("id");
         String sql = "delete from test.test_table where id = ?";
         JsonArray j = new JsonArray();
         j.add(id);
-
-        AsyncSQLClient client = postgresAsyDao.getClient(vertx);
         Future.succeededFuture()
-                .compose(r -> postgresAsyDao.getConnection(client))
-                .compose(con -> postgresAsyDao.updateWithParams(con, sql, j))
+                .compose(con -> postgresAsyDao.updateWithParams(postgresAsyDao.getClient(vertx), sql, j))
                 .setHandler(res -> {
                     if (res.succeeded()) {
                         ctx.response().end(res.result().toString());

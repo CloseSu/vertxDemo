@@ -28,44 +28,62 @@ public class PostgresAsyDao {
         return PostgreSQLClient.createShared(vertx, mysqlConfig);
     }
 
-    public Future<SQLConnection> getConnection(AsyncSQLClient client) {
-        Future<SQLConnection> future = Future.future();
-        client.getConnection(future);
-        return future;
+    public Future<List<JsonObject>> query(AsyncSQLClient client, String sql) {
+        return Future.succeededFuture()
+                .compose(r -> {
+                    Future<SQLConnection> f1 = Future.future();
+                    client.getConnection(f1);
+                    return f1;
+                })
+                .compose(con -> {
+                    Future<List<JsonObject>> f2 = Future.future();
+                    con.query(sql, r -> {
+                        if (r.failed()) {
+                            f2.fail(r.cause());
+                        }
+                        f2.complete(r.result().getRows());
+                    });
+                    return f2;
+                });
     }
 
-    public Future<List<JsonObject>> query(SQLConnection connection, String sql) {
-        Future<List<JsonObject>> future = Future.future();
-        connection.query(sql, r -> {
-            if (r.failed()) {
-                future.fail(r.cause());
-                future.isComplete();
-            }
-            future.complete(r.result().getRows());
-        });
-        return future;
+
+    public Future<List<JsonObject>> queryWithParams(AsyncSQLClient client, String sql, JsonArray params) {
+        return Future.succeededFuture()
+                .compose(r -> {
+                    Future<SQLConnection> f1 = Future.future();
+                    client.getConnection(f1);
+                    return f1;
+                })
+                .compose(con -> {
+                    Future<List<JsonObject>> f2 = Future.future();
+                    con.queryWithParams(sql, params, r -> {
+                        if (r.failed()) {
+                            f2.fail(r.cause());
+                        }
+                        f2.complete(r.result().getRows());
+                    });
+                    return f2;
+                });
     }
 
-    public Future<List<JsonObject>> queryWithParams(SQLConnection connection, String sql, JsonArray params) {
-        Future<List<JsonObject>> future = Future.future();
-        connection.queryWithParams(sql, params, r -> {
-            if (r.failed()) {
-                future.fail(r.cause());
-            }
-            future.complete(r.result().getRows());
-        });
-        return future;
-    }
-
-    protected Future<Boolean> updateWithParams(SQLConnection connection, String sql, JsonArray params) {
-        Future<Boolean> future =  Future.future();
-        connection.updateWithParams(sql, params, r -> {
-            if (r.failed()) {
-                future.fail(r.cause());
-            }
-            future.complete(r.result().getUpdated() == 1 ? true : false);
-        });
-        return future;
+    protected Future<Boolean> updateWithParams(AsyncSQLClient client, String sql, JsonArray params) {
+        return Future.succeededFuture()
+                .compose(r -> {
+                    Future<SQLConnection> f1 = Future.future();
+                    client.getConnection(f1);
+                    return f1;
+                })
+                .compose(con -> {
+                    Future<Boolean> f2 =  Future.future();
+                    con.updateWithParams(sql, params, r -> {
+                        if (r.failed()) {
+                            f2.fail(r.cause());
+                        }
+                        f2.complete(r.result().getUpdated() == 1 ? true : false);
+                    });
+                    return f2;
+                });
     }
 
 }
