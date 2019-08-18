@@ -1,12 +1,16 @@
 package com.example.vertxdemo.request;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.RequestOptions;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 
@@ -26,26 +30,30 @@ public class Req extends AbstractVerticle {
             queue.add(i);
         }
 
+        while (queue.size() > 0) {
+            List<Future> list = new ArrayList<>();
+            for (int i = 0; i < throttle ; i++) {
+                Future ff = Future.succeededFuture()
+                        .compose(o -> {
+                            Future<Void> f = Future.future();
+                            Integer name = ((LinkedList<Integer>) queue).pop();
+                            getFile(String.valueOf(name), client, f);
+                            return f;
+                        });
+                list.add(ff);
+            }
+            CompositeFuture.all(list).map(r -> {
+                System.out.println("consume 5==============================");
+                return null;
+            });
 
-       while (queue.size() > 0) {
-           for (int i = 0; i < throttle ; i++) {
-               Integer name = ((LinkedList<Integer>) queue).pop();
-               getFile(String.valueOf(name), client);
-           }
-           System.out.println("consume 5==============================");
-           try {
-               Thread.sleep(5000);
-           } catch (InterruptedException e) {
-               e.printStackTrace();
-           }
-
-       }
+        }
     }
 
 
 
 
-    private void getFile(String name, HttpClient client) {
+    private void getFile(String name, HttpClient client, Future<Void> f) {
         RequestOptions r = new RequestOptions();
         r.setHost("localhost");
         r.setPort(8082);
@@ -71,6 +79,7 @@ public class Req extends AbstractVerticle {
                 Long t3 = System.nanoTime();
                 System.out.print(name + " get body  ");
                 System.out.println(name + " t3: time = " + (t3 - start) / nTos + "  ");
+                f.complete();
             });
         });
 

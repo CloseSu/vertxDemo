@@ -55,11 +55,31 @@ public class FileUploadVerticle extends AbstractVerticle {
         router.route("/remove/:bucket").handler(this::removeProcess);
         router.route("/list/:bucket").handler(this::listProcess);
 
+        fileSocket(server);
         errorProcess(router);
 
         server.requestHandler(router).listen(8082);
 
         createDir();
+    }
+
+
+    private void fileSocket(HttpServer server) {
+        server.websocketHandler(es -> {
+            es.frameHandler(fr -> {
+                Future.succeededFuture().compose(r -> {
+                    FileSystem fs = vertx.fileSystem();
+                    Future<Buffer> f = Future.future();
+                    fs.readFile(path+File.separator+"text.txt", f);
+                    return f;
+                }).setHandler(rs -> {
+                    if (rs.succeeded()) {
+                        es.writeTextMessage(rs.toString());
+                    } else {
+                    }
+                });
+            });
+        });
     }
 
     private void createDir() {

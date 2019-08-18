@@ -3,6 +3,7 @@ package com.example.vertxdemo;
 import com.example.vertxdemo.http.dao.RestVerticle;
 import com.example.vertxdemo.request.FileUploadVerticle;
 import com.example.vertxdemo.request.Req;
+import com.example.vertxdemo.request.Socke;
 import com.example.vertxdemo.socket.SocketEventBusServer;
 import io.vertx.core.Vertx;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,8 @@ public class VertxdemoApplication {
     FileUploadVerticle fileUploadVerticle;
     @Autowired
     Req req;
-
+    @Autowired
+    Socke socke;
 
     public static void main(String[] args) {
         SpringApplication.run(VertxdemoApplication.class, args);
@@ -33,6 +35,6 @@ public class VertxdemoApplication {
 //        Vertx.vertx().deployVerticle(socketEventBusServer);
 //        Vertx.vertx().deployVerticle(restVerticle);
         Vertx.vertx().deployVerticle(fileUploadVerticle);
-        Vertx.vertx().deployVerticle(req);
+        Vertx.vertx().deployVerticle(socke);
     }
 }
