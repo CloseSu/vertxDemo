@@ -35,6 +35,6 @@ public class VertxdemoApplication {
 //        Vertx.vertx().deployVerticle(socketEventBusServer);
 //        Vertx.vertx().deployVerticle(restVerticle);
         Vertx.vertx().deployVerticle(fileUploadVerticle);
-        Vertx.vertx().deployVerticle(socke);
+        Vertx.vertx().deployVerticle(req);
     }
 }

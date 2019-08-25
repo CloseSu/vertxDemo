@@ -1,17 +1,15 @@
 package com.example.vertxdemo.request;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.RequestOptions;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 
 @Component
@@ -20,44 +18,65 @@ public class Req extends AbstractVerticle {
     private final Integer nTos = 1_000_000;
     private final Integer throttle = 5;
 
+    private SmallQueue queue;
+
     @Override
     public void start() {
-        HttpClient client = vertx.createHttpClient();
+        execFuture("70m");
+        execFuture("text.txt");
+        execFuture("cloud.jpg");
+        execFuture("70m");
+        execFuture("text.txt");
+        execFuture("cloud.jpg");
+        execFuture("70m");
+        execFuture("70m");
+        execFuture("70m");
+        execFuture("70m");
 
-        Queue<Integer> queue = new LinkedList<>();
+    }
 
-        for (int i = 0; i< 20; i++) {
-            queue.add(i);
-        }
 
-        while (queue.size() > 0) {
-            List<Future> list = new ArrayList<>();
-            for (int i = 0; i < throttle ; i++) {
-                Future ff = Future.succeededFuture()
-                        .compose(o -> {
-                            Future<Void> f = Future.future();
-                            Integer name = ((LinkedList<Integer>) queue).pop();
-                            getFile(String.valueOf(name), client, f);
-                            return f;
-                        });
-                list.add(ff);
-            }
-            CompositeFuture.all(list).map(r -> {
-                System.out.println("consume 5==============================");
-                return null;
-            });
+    public Future<String> execFuture(String name) {
+        return execInqueue(() -> getFile(name), getQueue(), (future) -> queue.execute(future));
+    }
 
+    private SmallQueue getQueue() {
+        if (queue == null) {
+            queue = new SmallQueue(2);
+            return queue;
+        } else {
+            return queue;
         }
     }
 
 
+    private <T> Future<T> execInqueue(Supplier<Future<T>> func, SmallQueue queue, Consumer<Future<Void>> queueFunc) {
+        Future<T> result = Future.future();
+        Future<Void> trigger = Future.future();
+        trigger.compose(o -> func.get())
+                .setHandler(r -> {
+                    if (r.succeeded()) {
+                        result.complete(r.result());
+                    } else {
+                        result.fail(r.cause());
+                    }
+                    queue.next();
+                    System.out.println("run next");
+                });
+        queueFunc.accept(trigger);
+        return result;
+    }
 
+    private Future<String> getFile(String name) {
+       HttpClientOptions options = new HttpClientOptions()
+                .setKeepAlive(false);
+        HttpClient client = vertx.createHttpClient(options);
 
-    private void getFile(String name, HttpClient client, Future<Void> f) {
+        Future<String> f = Future.future();
         RequestOptions r = new RequestOptions();
         r.setHost("localhost");
         r.setPort(8082);
-        r.setURI("/70m");
+        r.setURI("/"+name);
 
         Long start = System.nanoTime();
 
@@ -79,10 +98,11 @@ public class Req extends AbstractVerticle {
                 Long t3 = System.nanoTime();
                 System.out.print(name + " get body  ");
                 System.out.println(name + " t3: time = " + (t3 - start) / nTos + "  ");
-                f.complete();
+                f.complete(b.toString());
             });
         });
 
+        return f;
     }
 
 }
