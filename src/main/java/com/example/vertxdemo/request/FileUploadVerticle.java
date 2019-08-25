@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.FileSystemException;
@@ -35,9 +36,16 @@ public class FileUploadVerticle extends AbstractVerticle {
 
     private final String path = "file-upload";
     private static final String URI = "/*";
+    private static final Integer port = 8082;
 
     public static final String ACCESS_KEY = System.getenv("ACCESS_KEY");
     public static final String SECRET_KEY = System.getenv("SECRET_KEY");
+
+    public static void main(String[] args) {
+        Vertx vertx = Vertx.vertx();
+        vertx.deployVerticle(new FileUploadVerticle());
+    }
+
 
     @Override
     public void start() {
@@ -58,7 +66,7 @@ public class FileUploadVerticle extends AbstractVerticle {
         fileSocket(server);
         errorProcess(router);
 
-        server.requestHandler(router).listen(8082);
+        server.requestHandler(router).listen(port);
 
         createDir();
     }
@@ -107,6 +115,10 @@ public class FileUploadVerticle extends AbstractVerticle {
 
     private void getFile(RoutingContext ctx) {
         String picture = ctx.request().getParam("bucket");
+        ctx.request().headers().forEach(h -> {
+            System.out.println(h);
+        });
+        System.out.println(ctx.getBodyAsString());
         Future.succeededFuture().compose(r -> {
             FileSystem fs = vertx.fileSystem();
             Future<Buffer> f = Future.future();
