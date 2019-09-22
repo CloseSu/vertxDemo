@@ -8,6 +8,12 @@ public class ServerVerticle extends AbstractVerticle {
 
     private final String busAdress = "vertx.cluster.replyHello";
 
+    private String name;
+
+    public ServerVerticle(String name) {
+        this.name = name;
+    }
+
     @Override
     public void start() {
         vertx.eventBus().<JsonObject>consumer(busAdress).handler(msgHandler());
@@ -21,7 +27,7 @@ public class ServerVerticle extends AbstractVerticle {
                 JsonObject result=new JsonObject();
                 result.put("code",200);
                 result.put("msg","ok");
-                result.put("remark","[回复]客户端你好!");
+                result.put("remark","[回复]" + name +  "說客户端你好!");
                 msg.reply(result);
             } catch (Exception e) {
                 JsonObject error=new JsonObject();
