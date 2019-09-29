@@ -33,8 +33,10 @@ public class PostgresAsyDao {
                 .compose(r -> Future.<SQLConnection>future(f -> client.getConnection(f)))
                 .compose(con -> Future.future(f -> con.query(sql, r -> {
                     if (r.failed()) {
+                        client.close();
                         f.fail(r.cause());
                     }
+                    client.close();
                     f.complete(r.result().getRows());
                 })));
     }
@@ -45,8 +47,10 @@ public class PostgresAsyDao {
                 .compose(r -> Future.<SQLConnection>future(f -> client.getConnection(f)))
                 .compose(con -> Future.future(f -> con.queryWithParams(sql, params, r -> {
                     if (r.failed()) {
+                        client.close();
                         f.fail(r.cause());
                     }
+                    client.close();
                     f.complete(r.result().getRows());
                 })));
     }
@@ -56,8 +60,10 @@ public class PostgresAsyDao {
                 .compose(r -> Future.<SQLConnection>future(f -> client.getConnection(f)))
                 .compose(con -> Future.future(f ->  con.updateWithParams(sql, params, r -> {
                     if (r.failed()) {
+                        client.close();
                         f.fail(r.cause());
                     }
+                    client.close();
                     f.complete(r.result().getUpdated() == 1 ? true : false);
                 })));
     }
